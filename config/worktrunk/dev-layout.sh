@@ -70,19 +70,19 @@ _wt_dev_window_exists() {
     | grep -qx "$window_name"
 }
 
-_wt_dev_tool_command() {
+_wt_dev_tool_shell_command() {
   local window_name="$1"
   local editor
   editor="$(_wt_dev_editor)"
   case "$window_name" in
     review)
-      printf '%s' "bash -li -c 'tuicr; exec bash -li'"
+      printf '%s' "tuicr; exec bash -li"
       ;;
     explorer)
-      printf '%s' "bash -li -c '${editor} .; exec bash -li'"
+      printf '%s' "${editor} .; exec bash -li"
       ;;
     terminal)
-      printf '%s' "bash -li -c 'clear; exec bash -li'"
+      printf '%s' "clear; exec bash -li"
       ;;
     *)
       return 1
@@ -161,15 +161,15 @@ _wt_dev_ensure_window() {
   local session_name="$1"
   local window_name="$2"
   local workdir="$3"
-  local cmd="${4:-}"
+  local shell_cmd="${4:-}"
 
   if _wt_dev_window_exists "$session_name" "$window_name"; then
     return 0
   fi
 
-  [[ -n "$cmd" ]] || cmd=$(_wt_dev_tool_command "$window_name")
-  # shellcheck disable=SC2086
-  tmux new-window -t "$session_name" -c "$workdir" -n "$window_name" $cmd
+  [[ -n "$shell_cmd" ]] || shell_cmd=$(_wt_dev_tool_shell_command "$window_name")
+  tmux new-window -t "$session_name" -c "$workdir" -n "$window_name" \
+    bash -li -c "$shell_cmd"
   tmux set-window-option -t "$session_name:$window_name" automatic-rename off
 }
 
@@ -327,16 +327,14 @@ wt_dev_layout_apply() {
 wt_dev_layout_create() {
   local session_name="$1"
   local workdir="$2"
-  local cmd
 
   if tmux has-session -t "$session_name" 2>/dev/null; then
     _wt_dev_layout_ensure "$session_name" "$workdir"
     return 0
   fi
 
-  cmd=$(_wt_dev_tool_command review)
-  # shellcheck disable=SC2086
-  tmux new-session -d -s "$session_name" -c "$workdir" -n review $cmd
+  tmux new-session -d -s "$session_name" -c "$workdir" -n review \
+    bash -li -c "tuicr; exec bash -li"
   tmux set-window-option -t "$session_name:review" automatic-rename off
   tmux set-option -t "$session_name" @wt-dev-workdir "$workdir"
   tmux set-option -t "$session_name" @wt-dev-tab review
