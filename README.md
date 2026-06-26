@@ -28,6 +28,27 @@ cd /path/to/agentic-tmux-setup
 - **worktrunk hooks**: auto-create/kill tmux sessions on worktree start/remove
 - **Config**: `~/.config/agentic-tmux/config.toml` (agent command + editor)
 
+### Layout
+
+One tmux session. The agent pane stays on the left (~50%); tool windows are status-bar tabs on the right. Switching tabs moves the agent pane with you — it is not its own tab.
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│ #S   1:review   2:explorer   3:terminal              PREFIX  #h  │  status bar (top)
+├─────────────────────────┬────────────────────────────────────────┤
+│                         │                                        │
+│   agent                 │   active tool tab                      │
+│   (codex / claude /     │                                        │
+│    agent / opencode)    │   review    → tuicr                    │
+│                         │   explorer  → nvim (neo-tree)          │
+│   sticky left pane      │   terminal  → shell                    │
+│                         │                                        │
+│   prefix+1              │   prefix+2/3/4  or  Alt+1/2/3          │
+└─────────────────────────┴────────────────────────────────────────┘
+```
+
+Prefix is `Ctrl-Space` (fallback `Ctrl-b`). `prefix+D` applies this layout in the current window.
+
 ### First-run prompt
 
 On install you'll pick the agent pane command:
@@ -59,8 +80,6 @@ Saved to `~/.config/agentic-tmux/config.toml`. Change later with `agentic-tmux r
 | `prefix+2/3/4` | review / explorer / terminal |
 | `Alt+1/2/3` | Same tabs without prefix |
 | `prefix+q` | Reload tmux config |
-
-Prefix is `Ctrl-Space` (fallback `Ctrl-b`).
 
 ## Post-install CLI
 
@@ -97,7 +116,7 @@ Shell rc gets a fenced marker block in `~/.bashrc` and/or `~/.zshrc`.
 
 ## Cloudflare hosting
 
-Static site on Cloudflare Pages (`tmux.simoncrypta.dev`). Deploy from this repo — no GitHub Actions deploy step.
+Static site on Cloudflare Pages (`tmux.simoncrypta.dev`). Deploy manually from this repo.
 
 1. Create the Pages project in Cloudflare (or use an existing one named `agentic-tmux-setup`)
 2. Authenticate once: `npx wrangler login`
@@ -111,8 +130,6 @@ npm run deploy
 `npm run deploy` runs `wrangler pages deploy` using `wrangler.toml` at the repo root (`pages_build_output_dir = "."`).
 
 Custom domain: set `tmux.simoncrypta.dev` on the Pages project in the Cloudflare dashboard.
-
-GitHub Actions only runs shellcheck (`.github/workflows/ci.yml`).
 
 ## Development
 
