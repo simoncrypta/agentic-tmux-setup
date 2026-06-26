@@ -1,7 +1,32 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+bootstrap_remote_libs() {
+  local base="${INSTALL_SRC:-https://tmux.simoncrypta.dev}"
+  local tmp lib
+  tmp="$(mktemp -d)"
+  mkdir -p "$tmp/lib"
+  for lib in common detect deps config shell-rc uninstall help; do
+    curl -fsSL "${base%/}/lib/${lib}.sh" -o "$tmp/lib/${lib}.sh"
+  done
+  printf '%s' "$tmp"
+}
+
+resolve_root() {
+  local self="${BASH_SOURCE[0]:-${0:-}}"
+  if [[ -n "$self" && "$self" != bash && "$self" != -bash && -f "$(dirname "$self")/lib/common.sh" ]]; then
+    cd "$(dirname "$self")" && pwd
+    return 0
+  fi
+  INSTALL_SRC="${INSTALL_SRC:-https://tmux.simoncrypta.dev}"
+  bootstrap_remote_libs
+}
+
+ROOT="$(resolve_root)"
+if [[ ! -f "$ROOT/lib/common.sh" ]]; then
+  printf 'error: failed to load installer libraries\n' >&2
+  exit 1
+fi
 
 # shellcheck source=lib/common.sh
 source "$ROOT/lib/common.sh"
