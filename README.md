@@ -97,10 +97,22 @@ Shell rc gets a fenced marker block in `~/.bashrc` and/or `~/.zshrc`.
 
 ## Cloudflare hosting
 
-1. Push repo to GitHub
-2. Create Cloudflare Pages project → connect repo → output dir: `/`
-3. Add custom domain `tmux.simoncrypta.dev`
-4. Set GitHub secrets: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`
+Static site on Cloudflare Pages (`tmux.simoncrypta.dev`). Deploy from this repo — no GitHub Actions deploy step.
+
+1. Create the Pages project in Cloudflare (or use an existing one named `agentic-tmux-setup`)
+2. Authenticate once: `npx wrangler login`
+3. Deploy:
+
+```bash
+npm install
+npm run deploy
+```
+
+`npm run deploy` runs `wrangler pages deploy` using `wrangler.toml` at the repo root (`pages_build_output_dir = "."`).
+
+Custom domain: set `tmux.simoncrypta.dev` on the Pages project in the Cloudflare dashboard.
+
+GitHub Actions only runs shellcheck (`.github/workflows/ci.yml`).
 
 ## Development
 
@@ -111,6 +123,7 @@ mise install
 shellcheck install.sh lib/*.sh bin/agentic-tmux config/shell/agentic-tmux.inc.sh
 ./install.sh --help
 agentic-tmux dry-run
+npm run deploy   # publish to Cloudflare Pages
 ```
 
 ## License
