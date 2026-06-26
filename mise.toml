@@ -1,0 +1,3 @@
+# Optional: contributor dev tools only — not required by install.sh
+[tools]
+shellcheck = "latest"

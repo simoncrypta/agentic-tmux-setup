@@ -1,0 +1,8 @@
+# Cloudflare Pages
+# Connect this repo in the Cloudflare dashboard and set custom domain: tmux.simoncrypta.dev
+# Build command: (none — static site)
+# Build output directory: /
+
+name = "agentic-tmux-setup"
+compatibility_date = "2024-01-01"
+pages_build_output_dir = "."

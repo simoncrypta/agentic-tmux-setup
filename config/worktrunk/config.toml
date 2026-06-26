@@ -1,0 +1,22 @@
+[pre-start]
+copy-ignored = "wt step copy-ignored"
+
+[post-start]
+tmux = """
+S="{{ repo | capitalize }}_{{ branch | capitalize }}"
+W="{{ worktree_path }}"
+
+source "$HOME/.config/worktrunk/dev-layout.sh"
+wt_dev_layout_create "$S" "$W"
+
+echo "✓ Tmux session '$S' created"
+echo "  Layout: agent pane (left, sticky) | tabs: review, explorer, terminal"
+echo "  Switch tabs: status bar, Alt+1..3, or prefix+2..4; prefix+1 focuses agent"
+echo "  Attach with: tmux attach -t $S"
+"""
+
+[post-remove]
+tmux = """
+S="{{ repo | capitalize }}_{{ branch | capitalize }}"
+tmux kill-session -t "$S" 2>/dev/null || true
+"""

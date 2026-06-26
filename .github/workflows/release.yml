@@ -1,0 +1,39 @@
+name: release
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+  deployments: write
+
+jobs:
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run shellcheck
+        run: |
+          sudo apt-get update && sudo apt-get install -y shellcheck
+          shellcheck install.sh bin/agentic-tmux lib/*.sh \
+            config/bash/agentic-tmux.sh config/zsh/agentic-tmux.zsh \
+            config/shell/agentic-tmux.inc.sh \
+            config/worktrunk/dev-layout.sh config/worktrunk/dev-layout-cmd.sh \
+            config/agentic-tmux/config-reader.sh
+
+  deploy-pages:
+    needs: shellcheck
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy . --project-name=agentic-tmux-setup
